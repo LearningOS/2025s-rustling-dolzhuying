@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +69,47 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self
+    where T:Ord+Copy
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut list_c=LinkedList::new();
+        while list_a.length>0&&list_b.length>0{
+            let a_val=*list_a.get(0).unwrap();
+            let b_val=*list_b.get(0).unwrap();
+
+            if a_val<=b_val{
+                list_c.add(a_val);
+                list_a.remove_first();
+            }else{
+                list_c.add(b_val);
+                list_b.remove_first();
+            }
         }
+        while list_a.length>0{
+            let a_val = *list_a.get(0).unwrap();
+			list_c.add(a_val);
+			list_a.remove_first();
+
+        }
+        while list_b.length > 0 {
+			let b_val = *list_b.get(0).unwrap();
+			list_c.add(b_val);
+			list_b.remove_first();
+		}
+		list_c
 	}
+
+    fn remove_first(&mut self)->Option<T>{
+        self.start.map(|node_ptr|{
+            let node=unsafe{Box::<Node<T>>::from_raw(node_ptr.as_ptr())};
+            self.start=node.next;
+            if self.start.is_none(){
+                self.end=None;
+            }
+            self.length-=1;
+            node.val
+        })
+    }
 }
 
 impl<T> Display for LinkedList<T>
